@@ -20,13 +20,60 @@ For example, if a Spanish sentence sounds angry, does the English translation al
 
 ---
 
+## Research Overview Diagram
+
+```mermaid
+flowchart TD
+    DS[("`**UGSC Dataset**
+    200 real-world sentences
+    *(Spanish · French · Italian)*`")]
+
+    DS -->|"Keep original English text"| REF["📄 Reference English<br/>200 sentences<br/>*(ground truth)*"]
+
+    DS -->|"Translate to English via API"| GPT["🤖 GPT-5.2<br/>600 English translations"]
+
+    DS -->|"Translate to English via API"| GEM["🤖 Gemini-2.5-Flash<br/>600 English translations"]
+
+    REF --> CLF["🔍 Sentiment Classifier<br/>*(XLM-RoBERTa)*<br/>Labels each sentence:<br/>Positive · Neutral · Negative"]
+    GPT --> CLF
+    GEM --> CLF
+
+    CLF --> CMP["⚖️ Compare Labels<br/>Does the translation's emotion<br/>match the original?"]
+
+    CMP --> RQ1["**RQ1** — Overall accuracy<br/>GPT vs Gemini across all 600 pairs"]
+    CMP --> RQ2["**RQ2** — By emotion type<br/>Which emotion is hardest to preserve?"]
+    CMP --> RQ3["**RQ3** — Error patterns<br/>When wrong, which direction does it shift?"]
+    CMP --> RQ4["**RQ4** — By language<br/>Spanish vs French vs Italian"]
+
+    style DS fill:#f0f4ff,stroke:#4a6cf7,stroke-width:2px
+    style REF fill:#e8f5e9,stroke:#43a047
+    style GPT fill:#fff3e0,stroke:#fb8c00
+    style GEM fill:#fff3e0,stroke:#fb8c00
+    style CLF fill:#fce4ec,stroke:#e91e63
+    style CMP fill:#f3e5f5,stroke:#9c27b0
+    style RQ1 fill:#e3f2fd,stroke:#1e88e5
+    style RQ2 fill:#e3f2fd,stroke:#1e88e5
+    style RQ3 fill:#e3f2fd,stroke:#1e88e5
+    style RQ4 fill:#e3f2fd,stroke:#1e88e5
+```
+
+**Reading the diagram:**
+1. We start with **200 real sentences** in Spanish, French, and Italian.
+2. The original English version is kept as the **reference** (the "correct answer").
+3. Both AI tools (**GPT-5.2** and **Gemini-2.5-Flash**) translate each sentence into English — giving us 600 translations each.
+4. A **sentiment classifier** then reads every sentence (reference + both translations) and stamps it Positive, Neutral, or Negative.
+5. We **compare** the translation's stamp to the reference stamp — if they match, the AI preserved the feeling correctly.
+6. The results answer our **4 research questions**.
+
+---
+
 ## Pipeline
 
 ```
-01_prepare_data.ipynb   →   data/sentences.csv          (200 rows)
-02_translate.ipynb      →   outputs/translations_gpt.csv
-                            outputs/translations_gemini.csv
-03_classify.ipynb       →   outputs/classifications.csv
+01_prepare_data.ipynb   →   data/sentences.csv              (200 rows)
+02_translate.ipynb      →   outputs/translations_gpt.csv    (600 rows)
+                            outputs/translations_gemini.csv  (600 rows)
+03_classify.ipynb       →   outputs/classifications.csv     (1800 rows — all texts labelled)
 04_analysis.ipynb       →   outputs/summary_results.csv
                             outputs/figures/
 ```
