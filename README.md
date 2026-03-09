@@ -45,16 +45,16 @@ flowchart TD
     CMP --> RQ3["**RQ3** — Error patterns<br/>When wrong, which direction does it shift?"]
     CMP --> RQ4["**RQ4** — By language<br/>Spanish vs French vs Italian"]
 
-    style DS fill:#f0f4ff,stroke:#4a6cf7,stroke-width:2px
-    style REF fill:#e8f5e9,stroke:#43a047
-    style GPT fill:#fff3e0,stroke:#fb8c00
-    style GEM fill:#fff3e0,stroke:#fb8c00
-    style CLF fill:#fce4ec,stroke:#e91e63
-    style CMP fill:#f3e5f5,stroke:#9c27b0
-    style RQ1 fill:#e3f2fd,stroke:#1e88e5
-    style RQ2 fill:#e3f2fd,stroke:#1e88e5
-    style RQ3 fill:#e3f2fd,stroke:#1e88e5
-    style RQ4 fill:#e3f2fd,stroke:#1e88e5
+    style DS fill:#1e3a8a,stroke:#93c5fd,stroke-width:2px,color:#ffffff
+    style REF fill:#14532d,stroke:#86efac,color:#ffffff
+    style GPT fill:#7c2d12,stroke:#fdba74,color:#ffffff
+    style GEM fill:#78350f,stroke:#fcd34d,color:#ffffff
+    style CLF fill:#831843,stroke:#f9a8d4,color:#ffffff
+    style CMP fill:#4a044e,stroke:#e879f9,color:#ffffff
+    style RQ1 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
+    style RQ2 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
+    style RQ3 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
+    style RQ4 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
 ```
 
 **Reading the diagram:**
