@@ -1,0 +1,557 @@
+# LLM Model Configurations for Vietnamese Customer Service AI
+# Pricing as of February 2026 (update regularly)
+# Testing focus: Price, Throughput, Vietnamese Language Quality, Business Logic
+# 
+# ESSENTIAL PRESET - 15 representative models from major providers
+# Covers: OpenAI, Claude, Gemini, Grok, DeepSeek, Qwen, Minimax (2), Kimi, GLM, Mistral
+# Reduced from 73 models to 15 essential models to save time & costs (79% reduction)
+# Estimated test time: 3-5 hours | Estimated cost: $20-35
+
+models:
+  # ============================================================================
+  # OpenAI Models (3) - Current production system
+  # ============================================================================
+  
+  gpt-5-2-chat:
+    provider: openrouter
+    api_model: openai/gpt-5.2-chat
+    context_window: 128000
+    pricing:
+      input: 0.002    # $2 per 1M tokens
+      output: 0.006
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "⭐ CURRENT PRODUCTION GENERATOR - Latest GPT (Feb 2026), excellent Vietnamese quality"
+  
+  gpt-4o:
+    provider: openrouter
+    api_model: openai/gpt-4o
+    context_window: 128000
+    pricing:
+      input: 0.00125  # $1.25 per 1M tokens
+      output: 0.005
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "Balanced cost/quality, multimodal support, stable production choice"
+      
+  gpt-4o-mini:
+    provider: openai
+    api_model: gpt-4o-mini
+    context_window: 128000
+    pricing:
+      input: 0.000075  # $0.075 per 1M tokens
+      output: 0.0003
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "Ultra fast and cheap, excellent for classification tasks"
+  
+  # ============================================================================
+  # Anthropic Claude (1) - Production classifier
+  # ============================================================================
+  
+  claude-haiku-4-5:
+    provider: openrouter
+    api_model: anthropic/claude-haiku-4.5
+    context_window: 200000
+    pricing:
+      input: 0.0005   # $0.50 per 1M tokens
+      output: 0.0025
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "⭐ CURRENT PRODUCTION CLASSIFIER - Fastest Claude, very cost-effective"
+
+  # ============================================================================
+  # Google Gemini (2) - Strong multilingual + huge context
+  # ============================================================================
+  
+  gemini-2-5-flash:
+    provider: google
+    api_model: google/gemini-2.5-flash
+    context_window: 1048576  # 1M tokens
+    pricing:
+      input: 0.0003   # $0.30 per 1M tokens
+      output: 0.0025
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "Latest Gemini (Jun 2025), super fast and cost-effective, multimodal"
+
+  gemini-3-flash-preview:
+    provider: openrouter
+    api_model: google/gemini-3-flash-preview
+    context_window: 1048576  # 1M tokens
+    pricing:
+      input: 0.0005   # $0.50 per 1M tokens
+      output: 0.003   # $3.00 per 1M tokens
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "⭐ Gemini 3 Flash Preview (Dec 2025), high speed agentic workflows, multi-turn chat, coding assistance"
+
+  gemini-3-1-flash-lite-preview:
+    provider: openrouter
+    api_model: google/gemini-3.1-flash-lite-preview
+    context_window: 1048576  # 1M tokens
+    pricing:
+      input: 0.00025  # $0.25 per 1M tokens
+      output: 0.0015  # $1.50 per 1M tokens
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "⭐ NEW Gemini 3.1 Flash Lite Preview (Mar 3, 2026), high-efficiency optimized for high-volume use cases, outperforms Gemini 2.5 Flash Lite"
+
+  # ============================================================================
+  # xAI Grok (1) - Latest and fastest xAI model
+  # ============================================================================
+  
+  grok-4-1-fast:
+    provider: openrouter
+    api_model: x-ai/grok-4.1-fast
+    context_window: 128000
+    pricing:
+      input: 0.0002   # $0.20 per 1M tokens
+      output: 0.001
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "⭐ Latest Grok 4.1 Fast (Feb 2026), fastest xAI model, very cheap"
+  
+  # ============================================================================
+  # MiniMax M2.5 (Additional) - Latest productivity model
+  # ============================================================================
+  
+  minimax-m2-5:
+    provider: openrouter
+    api_model: minimax/minimax-m2.5
+    context_window: 196608
+    pricing:
+      input: 0.000295  # $0.295 per 1M tokens
+      output: 0.0012
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "⭐ Latest MiniMax M2.5 (Feb 12, 2026), SOTA for real-world productivity, multimodal"
+  
+  # ============================================================================
+  # DeepSeek (1) - Ultra budget Chinese AI
+  # ============================================================================
+  
+  deepseek-v3:
+    provider: openrouter
+    api_model: deepseek/deepseek-chat
+    context_window: 64000
+    pricing:
+      input: 0.00006  # $0.06 per 1M tokens - 97% cheaper than GPT!
+      output: 0.00024
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "Ultra cheap (97% cheaper than GPT), surprisingly good quality for Asian languages"
+
+  # ============================================================================
+  # Qwen/Alibaba (2) - Vietnamese/Asian language specialists
+  # ============================================================================
+  
+  qwen-3-5-flash:
+    provider: openrouter
+    api_model: qwen/qwen3.5-flash-02-23
+    context_window: 1000000  # 1M tokens
+    pricing:
+      input: 0.0001   # $0.10 per 1M tokens
+      output: 0.0004
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "⭐ Latest Qwen 3.5 Flash (Feb 25, 2026), excellent Vietnamese, multimodal, ultra-cheap"
+  
+  qwen-2-5-72b:
+    provider: openrouter
+    api_model: qwen/qwen-2.5-72b-instruct
+    context_window: 128000
+    pricing:
+      input: 0.0003   # $0.30 per 1M tokens
+      output: 0.0003
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "Proven Asian language expert, excellent for Vietnamese/Chinese"
+
+  # ============================================================================
+  # Minimax (1) - Chinese multimodal frontier AI
+  # ============================================================================
+  
+  minimax-01:
+    provider: openrouter
+    api_model: minimax/minimax-01
+    context_window: 245000  # 245K tokens
+    pricing:
+      input: 0.000275  # $0.275 per 1M tokens
+      output: 0.00033
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: true
+    notes: "Chinese frontier AI, strong multimodal capabilities, good for Asian languages"
+
+  # ============================================================================
+  # Moonshot/Kimi (1) - Long context specialist
+  # ============================================================================
+  
+  moonshot-v1-128k:
+    provider: openrouter
+    api_model: moonshotai/kimi-k2.5
+    context_window: 262144
+    pricing:
+      input: 0.00045  # $0.08 per 1M tokens
+      output: 0.0022
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "⭐ Kimi K2.5 by Moonshot AI (Jan 2026), latest version with improved reasoning"
+
+  # ============================================================================
+  # Zhipu GLM (1) - Agentic coding specialist
+  # ============================================================================
+  
+  glm-4-flash:
+    provider: openrouter
+    api_model: z-ai/glm-4.7-flash
+    context_window: 202752
+    pricing:
+      input: 0.00006  # $0.05 per 1M tokens
+      output: 0.0004
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "⭐ Zhipu AI GLM 4.7 Flash (Jan 2026), latest agentic coding model, strong tool use"
+
+  # ============================================================================
+  # Mistral (1) - European multilingual flagship
+  # ============================================================================
+  
+  mistral-large:
+    provider: openrouter
+    api_model: mistralai/mistral-large
+    context_window: 128000
+    pricing:
+      input: 0.002   # $2 per 1M tokens
+      output: 0.006
+    capabilities:
+      function_calling: true
+      json_mode: true
+      vision: false
+    notes: "Mistral flagship, strong European multilingual model, competitive with GPT-4"
+
+# ============================================================================
+# Evaluation Presets
+# ============================================================================
+
+presets:
+  # --------------------------------------------------------------------------
+  # ESSENTIAL - The only preset (all 12 models)
+  # --------------------------------------------------------------------------
+  essential:
+    description: "Essential representative models from major providers"
+    usage: "Quick comprehensive test of best current models (15 models total)"
+    estimated_time: "3-4 hours"
+    estimated_cost: "$16-30"
+    
+    models:
+      # OpenAI (3)
+      - gpt-5-2-chat            # ⭐ Current production generator
+      - gpt-4o                  # Balanced cost/quality
+      - gpt-4o-mini             # Ultra fast + cheap
+      
+      # Anthropic (1)
+      - claude-haiku-4-5        # ⭐ Current production classifier
+      
+      # Google (1)
+      - gemini-2-5-flash        # Latest Gemini, super fast
+      
+      # xAI (1)
+      - grok-4-1-fast           # ⭐ Latest Grok 4.1 Fast (Feb 2026)
+      
+      # DeepSeek (1)
+      - deepseek-v3             # Ultra cheap, 97% cheaper than GPT
+      
+      # Qwen (2)
+      - qwen-3-5-flash          # ⭐ Latest Qwen (Feb 2026), multimodal, ultra-cheap
+      - qwen-2-5-72b            # Proven Vietnamese specialist
+      
+      # Minimax (2)
+      - minimax-01              # Chinese multimodal frontier AI
+      - minimax-m2-5            # ⭐ Latest M2.5 (Feb 12, 2026), SOTA productivity model
+      
+      # Moonshot/Kimi (1)
+      - moonshot-v1-128k        # Ultra cheap long context
+      
+      # Zhipu GLM (1)
+      - glm-4-flash             # Agentic coding specialist
+      
+      # Mistral (1)
+      - mistral-large           # European multilingual flagship
+    
+    provider_coverage:
+      openai: 3                 # Current system
+      anthropic: 1              # Production classifier
+      google: 1                 # Strong multilingual
+      xai: 1                    # Latest Grok 4.1 Fast
+      deepseek: 1               # Budget option
+      qwen: 2                   # Vietnamese specialist
+      minimax: 2                # Chinese multimodal AI (minimax-01 + latest M2.5)
+      moonshot: 1               # Kimi long context
+      zhipuai: 1                # GLM agentic specialist
+      mistralai: 1              # European flagship
+    
+    why_these_models:
+      gpt-5-2-chat: "Current production generator, latest OpenAI (Feb 2026)"
+      gpt-4o: "Balanced cost/performance, stable production choice"
+      gpt-4o-mini: "Fast classification tasks, very cost-effective"
+      claude-haiku-4-5: "Current production classifier, fastest Claude"
+      gemini-2-5-flash: "Latest Google model (Jun 2025), excellent speed/cost ratio"
+      grok-4-1-fast: "Latest Grok 4.1 Fast (Feb 2026), fastest xAI model"
+      llama-3-3-70b: "Best open-source, no API costs for self-hosting"
+      deepseek-v3: "97% cheaper than GPT, surprisingly good quality"
+      qwen-3-5-flash: "⭐ Latest Qwen (Feb 2026), multimodal, excellent Vietnamese, ultra-cheap"
+      qwen-2-5-72b: "Proven Vietnamese specialist, excellent for Asian languages"
+      minimax-01: "Chinese frontier AI, strong multimodal, excellent for Asian languages"
+      moonshot-v1-128k: "Kimi by Moonshot AI, ultra-cheap with excellent long context"
+      glm-4-flash: "Zhipu GLM-4, best for agentic coding and tool use"
+      mistral-large: "European flagship, competitive with GPT-4, strong multilingual"
+    
+    testing_strategy:
+      phase_1: "Classification dataset (30 min)"
+      phase_2: "Generation dataset (1-2 hours)"
+      phase_3: "Agent/reasoning tests (1-2 hours)"
+      total: "2-4 hours total, covers all use cases"
+    
+    metrics_focus:
+      - vietnamese_quality_score
+      - accuracy
+      - cost_per_request
+      - latency_p95
+      - function_calling_accuracy
+  
+  # --------------------------------------------------------------------------
+  # CLASSIFICATION - Fast intent detection (5 fastest models)
+  # --------------------------------------------------------------------------
+  classification:
+    description: "Fast intent classification from Vietnamese customer messages"
+    temperature: 0.0
+    max_tokens: 100
+    candidates:
+      - claude-haiku-4-5        # ⭐ Current production
+      - gpt-4o-mini             # OpenAI ultra fast
+      - gemini-2-5-flash        # Google ultra fast
+      - grok-4-1-fast           # xAI ultra fast
+      - deepseek-v3             # Ultra cheap
+    metrics_focus:
+      - accuracy
+      - latency_p95
+      - cost_per_1k_requests
+      - vietnamese_intent_f1
+  
+  # --------------------------------------------------------------------------
+  # GENERATION - Vietnamese content generation (6 quality models)
+  # --------------------------------------------------------------------------
+  generation:
+    description: "Natural Vietnamese suggestion generation with cultural context"
+    temperature: 0.7
+    max_tokens: 500
+    candidates:
+      - gpt-5-2-chat            # ⭐ Current production
+      - qwen-3-5-flash          # ⭐ Latest Qwen, multimodal
+      - qwen-2-5-72b            # Vietnamese specialist
+      - llama-3-3-70b           # Open source
+      - minimax-01              # Chinese multimodal
+    metrics_focus:
+      - vietnamese_quality_score
+      - naturalness_rating
+      - cultural_appropriateness
+      - cost_per_1k_tokens
+
+# ============================================================================
+# Testing Strategy
+# ============================================================================
+
+testing_phases:
+  recommended:
+    description: "⭐ Test all 15 essential models (includes Qwen 3.5 Flash, Minimax, Kimi, GLM)"
+    duration: "3-4 hours"
+    estimated_cost: "$16-30"
+    preset: "essential"
+    purpose: "Comprehensive test of best models from all major providers including Chinese AI"
+    savings_vs_full_registry: "82% cheaper ($16-30 vs $250-600), 65% faster (3-4h vs 3-6 days)"
+
+# ============================================================================
+# Model Summary Statistics
+# ============================================================================
+
+summary:
+  total_models: 15  # Reduced from 73 (79% reduction)
+  
+  providers:
+    openai: 3        # gpt-5-2-chat, gpt-4o, gpt-4o-mini
+    anthropic: 1     # claude-haiku-4-5
+    google: 1        # gemini-2-5-flash
+    xai: 1           # grok-4-1-fast
+    meta: 1          # llama-3-3-70b
+    deepseek: 1      # deepseek-v3
+    qwen: 2          # qwen-3-5-flash, qwen-2-5-72b
+    minimax: 1       # minimax-01
+    moonshot: 1      # moonshot-v1-128k (Kimi)
+    zhipuai: 1       # glm-4-flash
+    mistralai: 1     # mistral-large
+  
+  cost_tiers:
+    ultra_cheap: 6   # glm-4-flash ($0.06/M), deepseek-v3 ($0.06/M), qwen-3-5-flash ($0.10/M), grok-4-1-fast ($0.20/M), minimax-01 ($0.275/M), qwen-2-5-72b ($0.30/M)
+    budget: 3        # gemini-2-5-flash, llama-3-3-70b, moonshot-v1-128k
+    mid_tier: 4      # claude-haiku-4-5, gpt-4o, gpt-5-2-chat, mistral-large
+    premium: 1       # gpt-4o-mini
+  
+  capability_support:
+    function_calling: 15    # All models
+    json_mode: 15           # All models
+    vision: 5               # gpt-4o, gpt-4o-mini, qwen-3-5-flash, gemini-2-5-flash, minimax-01
+    multimodal: 5
+  
+  latest_models_feb_2026:
+    - qwen-3-5-flash        # Feb 25, 2026 ⭐ NOW AVAILABLE
+    - grok-4-1-fast         # Feb 2026
+    - gpt-5-2-chat          # Feb 2026
+    - moonshot-v1-128k      # Jan 2026 (Kimi K2.5)
+    - glm-4-flash           # Jan 2026 (GLM 4.7)
+    - claude-haiku-4-5      # Jan 2026
+    - gemini-2-5-flash      # Jun 2025
+    - llama-3-3-70b         # Dec 2024
+  
+  estimated_test:
+    time: "3-4 hours"
+    cost: "$16-30"
+    coverage: "All major providers including Chinese AI (Minimax, Kimi, GLM, Mistral)"
+    
+  removed_models: 58  # From 73 to 15
+  removed_categories:
+    - "Older versions (gpt-4-turbo, claude-3-opus, grok-2, etc.)"
+    - "Duplicate OpenRouter versions"
+    - "Specialized reasoning models (o1-preview, deepseek-r1)"
+    - "Niche models (nova-micro, yi-lightning, phi-4)"
+    - "Audio/vision specialists not needed for restaurant AI"
+
+# ============================================================================
+# Current Production Configuration
+# ============================================================================
+
+production:
+  current_setup:
+    classifier:
+      model: claude-haiku-4-5
+      cost: "$0.50/M input tokens"
+      use_case: "Intent classification, sentiment, urgency detection"
+    
+    generator:
+      model: gpt-5-2-chat
+      cost: "$2/M input tokens"
+      use_case: "Vietnamese response generation, menu suggestions"
+  
+  monthly_costs_estimate:
+    current: "$400-600/month"
+    volume: "1M classification + 500K generation requests"
+    
+  optimization_candidates:
+    conservative_switch:
+      classifier: "Keep claude-haiku-4-5 ✅"
+      generator: "Test qwen-3-5-flash → 95% cost savings ($2 → $0.10/M)"
+      potential_savings: "$285/month (71% reduction)"
+    
+    aggressive_switch:
+      classifier: "Switch to gpt-4o-mini → 85% savings"
+      generator: "Switch to deepseek-v3 → 97% savings"
+      potential_savings: "$475/month (90% reduction)"
+      risk: "Must test thoroughly for Vietnamese quality"
+
+# ============================================================================
+# Quick Start Commands
+# ============================================================================
+
+quickstart:
+  setup: |
+    # Windows
+    .\evals\setup.ps1
+    
+    # Linux/Mac
+    bash evals/setup.sh
+  
+  run_test: |
+    # Activate environment
+    .\evals\venv\Scripts\Activate.ps1  # Windows
+    source evals/venv/bin/activate      # Linux/Mac
+    
+    # Run essential test (all 12 models)
+    python evals/compare_models.py --preset essential
+    
+    # Run specific test
+    python evals/compare_models.py --preset classification
+    python evals/compare_models.py --preset generation
+  
+  view_results: |
+    # View latest results
+    python evals/view_results.py --latest
+    
+    # Generate HTML report
+    python evals/generate_report.py --preset essential
+
+# ============================================================================
+# Notes
+# ============================================================================
+
+notes:
+  changes_from_original:
+    - "Reduced from 73 to 15 models (58 removed)"
+    - "Added qwen-3-5-flash (Latest Qwen Feb 25, 2026 - NOW AVAILABLE)"
+    - "Added minimax-01 (Chinese multimodal frontier AI)"
+    - "Added moonshot-v1-128k (Kimi K2.5 - ultra-cheap long context)"
+    - "Added glm-4-flash (Zhipu GLM 4.7 - agentic coding specialist)"
+    - "Added mistral-large (European multilingual flagship)"
+    - "Removed claude-3-5-sonnet (replaced with qwen-3-5-flash for better Vietnamese)"
+    - "Removed gemini-1-5-pro (not available on OpenRouter)"
+    - "Removed phi-4 (not needed for Vietnamese AI)"
+    - "Kept only essential models that represent each major provider"
+  
+  why_chinese_ai_models:
+    qwen_3_5_flash: "⭐ Latest Qwen (Feb 25, 2026), multimodal, Vietnamese specialist ($0.10/M)"
+    qwen_2_5_72b: "Proven Vietnamese specialist ($0.30/M), excellent Asian language support"
+    minimax_01: "Chinese frontier multimodal AI, strong vision + language for Asian markets"
+    moonshot_kimi: "Ultra-cheap ($0.45/M), excellent long context (262K), Kimi K2.5 latest"
+    glm_4_flash: "GLM 4.7 Flash agentic coding model ($0.06/M), excellent tool use for orders"
+    mistral_large: "European alternative, strong multilingual, competitive with GPT-4"
+    value_proposition: "These Chinese AI models provide excellent Vietnamese support at ultra-low costs"
+  
+  known_issues:
+    gemini_1_5_pro: "Not available on OpenRouter (model path changed or deprecated)"
+  
+  latest_updates:
+    feb_28_2026: "✅ Qwen 3.5 Flash now available! Added as qwen/qwen3.5-flash-02-23"
+  
+  if_need_more_models:
+    full_registry: "https://openrouter.ai/models"
+    backup_file: "evals/config/models.yaml.backup (contains all 73 models)"
+    recommendation: "Test these 12 first before adding more"
