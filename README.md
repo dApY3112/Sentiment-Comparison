@@ -28,17 +28,17 @@ flowchart TD
     200 real-world sentences
     *(Spanish · French · Italian)*`")]
 
-    DS -->|"Keep original English text"| REF["📄 Reference English<br/>200 sentences<br/>*(ground truth)*"]
+    DS -->|"Keep original English text"| REF["Reference English<br/>200 sentences<br/>*(ground truth)*"]
 
-    DS -->|"Translate to English via API"| GPT["🤖 GPT-5.2<br/>600 English translations"]
+    DS -->|"Translate to English via API"| GPT["GPT-5.2<br/>600 English translations"]
 
-    DS -->|"Translate to English via API"| GEM["🤖 Gemini-2.5-Flash<br/>600 English translations"]
+    DS -->|"Translate to English via API"| GEM["Gemini-2.5-Flash<br/>600 English translations"]
 
-    REF --> CLF["🔍 Sentiment Classifier<br/>*(XLM-RoBERTa)*<br/>Labels each sentence:<br/>Positive · Neutral · Negative"]
+    REF --> CLF["Sentiment Classifier<br/>*(XLM-RoBERTa)*<br/>Labels each sentence:<br/>Positive · Neutral · Negative"]
     GPT --> CLF
     GEM --> CLF
 
-    CLF --> CMP["⚖️ Compare Labels<br/>Does the translation's emotion<br/>match the original?"]
+    CLF --> CMP["Compare Labels<br/>Does the translation's emotion<br/>match the original?"]
 
     CMP --> RQ1["**RQ1** — Overall accuracy<br/>GPT vs Gemini across all 600 pairs"]
     CMP --> RQ2["**RQ2** — By emotion type<br/>Which emotion is hardest to preserve?"]
