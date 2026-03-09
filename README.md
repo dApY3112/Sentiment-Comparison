@@ -164,6 +164,6 @@ Thesis Quynh/
 | Python | 3.10 (conda `py310`) |
 | PyTorch | 2.6.0+cu118 |
 | Transformers | latest |
-| CUDA | 11.8 (RTX 305-) |
+| CUDA | 11.8 (RTX 3050) |
 | protobuf | 3.20.3 |
 | networkx | 3.2.1 |
