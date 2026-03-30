@@ -1,8 +1,15 @@
-# Sentiment Preservation in Multilingual Machine Translation: GPT vs Gemini
+# Medical Machine Translation Evaluation: GPT vs Gemini on MedEV
 
-This dissertation project asks a simple question: **when an AI translator converts a sentence from Spanish, French, or Italian into English, does it keep the feeling of the original sentence?**
+This project evaluates Vietnamese -> English medical translation quality using the MedEV dataset.
 
-For example, if a Spanish sentence sounds angry, does the English translation also sound angry — or does it come out sounding neutral or even happy? We tested two of the most popular AI translation tools (GPT-5.2 and Gemini-2.5-Flash) on 200 real-world sentences across three languages and measured how often each one got the feeling right.
+The current pipeline compares two API models:
+- GPT (`openai/gpt-5.2`)
+- Gemini (`google/gemini-2.5-flash`)
+
+Evaluation is done with standard MT metrics:
+- BLEU (higher is better)
+- chrF++ (higher is better)
+- TER (lower is better)
 
 ---
 
@@ -10,13 +17,104 @@ For example, if a Spanish sentence sounds angry, does the English translation al
 
 | Item | Detail |
 |---|---|
-| **What we're studying** | Do AI translators keep the emotion (positive / neutral / negative) of the original sentence? |
-| **Tools compared** | GPT-5.2 (by OpenAI) vs Gemini-2.5-Flash (by Google) |
-| **Source languages** | Spanish · French · Italian |
-| **Target language** | English |
-| **How we measure it** | A separate AI model reads each translated sentence and labels it as Positive, Neutral, or Negative. We then check if that label matches the original. |
-| **Dataset** | 200 sentences × 3 languages = **600 translation pairs** |
-| **Emotion categories** | Positive (happy/good) · Neutral (flat/factual) · Negative (sad/angry/bad) |
+| Task | Vietnamese -> English machine translation (medical domain) |
+| Dataset | MedEV (`nhuvo/MedEV`) |
+| Data source | Hugging Face Datasets |
+| Test size used in pipeline | Around 8.9k paired sentences (after cleaning) |
+| Models compared | GPT-5.2 vs Gemini-2.5-Flash |
+| Main outputs | Overall metrics, length-bin metrics, qualitative comparison |
+
+---
+
+## MedEV Notes
+
+MedEV on Hugging Face is currently loaded as a single `text` column per split in this environment.
+
+In `01_prepare_data.ipynb`, the pairing rule is:
+- First half of `test` rows: English reference
+- Second half of `test` rows: Vietnamese source
+- Pair by aligned index to create:
+  - `source_vi`
+  - `reference_en`
+
+Then export to `data/medev_test.csv` with columns:
+- `id`
+- `source_vi`
+- `reference_en`
+
+---
+
+## Pipeline
+
+```text
+01_prepare_data.ipynb
+  -> data/medev_test.csv
+
+02_translate.ipynb
+  -> outputs_medev/translations_gpt.csv
+  -> outputs_medev/translations_gemini.csv
+
+03_classify.ipynb
+  -> outputs_medev/results_overall.csv
+  -> outputs_medev/results_by_length_bin.csv
+
+04_analysis.ipynb
+  -> outputs_medev/qualitative_compare.csv
+  -> outputs_medev/figures/
+```
+
+---
+
+## Files and Folders
+
+```text
+Sentiment-Comparison/
+├── 01_prepare_data.ipynb
+├── 02_translate.ipynb
+├── 03_classify.ipynb
+├── 04_analysis.ipynb
+├── data/
+│   └── medev_test.csv
+├── outputs_medev/
+│   ├── translations_gpt.csv
+│   ├── translations_gemini.csv
+│   ├── results_overall.csv
+│   ├── results_by_length_bin.csv
+│   ├── qualitative_compare.csv
+│   └── figures/
+└── README.md
+```
+
+---
+
+## Setup
+
+### 1) Python packages
+
+Install required packages (if missing):
+
+```bash
+pip install datasets openai sacrebleu pandas numpy matplotlib
+```
+
+### 2) API key
+
+Set OpenRouter API key in environment:
+
+```bash
+OPENROUTER_API_KEY=your_key_here
+```
+
+(You can also store it in `.env` if your environment loader is configured.)
+
+---
+
+## Run Order
+
+1. Run `01_prepare_data.ipynb`
+2. Run `02_translate.ipynb`
+3. Run `03_classify.ipynb`
+4. Run `04_analysis.ipynb`
 
 ---
 
@@ -24,223 +122,128 @@ For example, if a Spanish sentence sounds angry, does the English translation al
 
 ```mermaid
 flowchart TD
-    DS[("`**UGSC Dataset**
-    200 real-world sentences
-    *(Spanish · French · Italian)*`")]
+  A[MedEV test split] --> B[01_prepare_data.ipynb]
+  B --> C[data/medev_test.csv<br/>id, source_vi, reference_en]
 
-    DS -->|"Keep original English text"| REF["Reference English<br/>200 sentences<br/>*(ground truth)*"]
+  C --> D1[02_translate.ipynb<br/>GPT-5.2]
+  C --> D2[02_translate.ipynb<br/>Gemini-2.5-Flash]
 
-    DS -->|"Translate to English via API"| GPT["GPT-5.2<br/>600 English translations"]
+  D1 --> E1[translations_gpt.csv]
+  D2 --> E2[translations_gemini.csv]
 
-    DS -->|"Translate to English via API"| GEM["Gemini-2.5-Flash<br/>600 English translations"]
+  E1 --> F[03_classify.ipynb<br/>BLEU / chrF++ / TER + bootstrap]
+  E2 --> F
 
-    REF --> CLF["Sentiment Classifier<br/>*(XLM-RoBERTa)*<br/>Labels each sentence:<br/>Positive · Neutral · Negative"]
-    GPT --> CLF
-    GEM --> CLF
+  F --> G1[results_overall.csv]
+  F --> G2[results_by_length_bin.csv]
 
-    CLF --> CMP["Compare Labels<br/>Does the translation's emotion<br/>match the original?"]
+  G1 --> H[04_analysis.ipynb]
+  G2 --> H
+  H --> I[qualitative_compare.csv + figures]
 
-    CMP --> RQ1["**RQ1** — Overall accuracy<br/>GPT vs Gemini across all 600 pairs"]
-    CMP --> RQ2["**RQ2** — By emotion type<br/>Which emotion is hardest to preserve?"]
-    CMP --> RQ3["**RQ3** — Error patterns<br/>When wrong, which direction does it shift?"]
-    CMP --> RQ4["**RQ4** — By language<br/>Spanish vs French vs Italian"]
-
-    style DS fill:#1e3a8a,stroke:#93c5fd,stroke-width:2px,color:#ffffff
-    style REF fill:#14532d,stroke:#86efac,color:#ffffff
-    style GPT fill:#7c2d12,stroke:#fdba74,color:#ffffff
-    style GEM fill:#78350f,stroke:#fcd34d,color:#ffffff
-    style CLF fill:#831843,stroke:#f9a8d4,color:#ffffff
-    style CMP fill:#4a044e,stroke:#e879f9,color:#ffffff
-    style RQ1 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
-    style RQ2 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
-    style RQ3 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
-    style RQ4 fill:#1e3a5f,stroke:#60a5fa,color:#ffffff
-```
-
-**Reading the diagram:**
-1. We start with **200 real sentences** in Spanish, French, and Italian.
-2. The original English version is kept as the **reference** (the "correct answer").
-3. Both AI tools (**GPT-5.2** and **Gemini-2.5-Flash**) translate each sentence into English — giving us 600 translations each.
-4. A **sentiment classifier** then reads every sentence (reference + both translations) and stamps it Positive, Neutral, or Negative.
-5. We **compare** the translation's stamp to the reference stamp — if they match, the AI preserved the feeling correctly.
-6. The results answer our **4 research questions**.
-
----
-
-## Pipeline
-
-```
-01_prepare_data.ipynb   →   data/sentences.csv              (200 rows)
-02_translate.ipynb      →   outputs/translations_gpt.csv    (600 rows)
-                            outputs/translations_gemini.csv  (600 rows)
-03_classify.ipynb       →   outputs/classifications.csv     (1800 rows — all texts labelled)
-04_analysis.ipynb       →   outputs/summary_results.csv
-                            outputs/figures/
+  I --> J[RQ1-RQ4 findings]
 ```
 
 ---
 
-## Research Questions & Results
+## Results by Research Questions (RQ1-RQ4)
 
-### RQ1 — Which AI translator is better at keeping the right feeling overall?
+All numbers below are from the current MedEV run outputs in `outputs_medev/`.
 
-> *Which model better preserves the original sentiment label across all language pairs?*
+### RQ1. Model nao dich tong the tot hon tren MedEV?
 
-**How we measured it:** After each AI translated a sentence into English, a third-party emotion detector read it and decided: is this Positive, Neutral, or Negative? We then compared that result to the original sentence's emotion label. If they matched — the translator did its job correctly. We did this for all 600 sentence pairs.
+Ket luan ngan gon: **Gemini-2.5-Flash tot hon GPT-5.2 tren ca 3 metric chinh**.
 
-| Model | Got it right | Accuracy | Difference |
-|---|---|---|---|
-| GPT-5.2 | 477 out of 600 | 79.50% | — |
-| Gemini-2.5-Flash | 484 out of 600 | **80.67%** | +1.17% better |
+| Model | BLEU (higher better) | chrF++ (higher better) | TER (lower better) |
+|---|---:|---:|---:|
+| GPT-5.2 | 33.383 | 59.609 | 59.983 |
+| Gemini-2.5-Flash | 38.274 | 61.808 | 54.977 |
 
-**What this means:** Gemini got 7 more sentences right than GPT out of 600. That's a small gap, but what makes it meaningful is that Gemini consistently wins across languages and emotion types — it's not just a lucky fluke. Think of it like a student who scores 1 mark higher on every section of an exam versus one who randomly scores higher on one section.
+Y nghia:
+- Gemini +4.891 BLEU so voi GPT.
+- Gemini +2.199 chrF++ so voi GPT.
+- Gemini giam 5.006 TER (tot hon vi TER cang thap cang tot).
 
-> **Chart:** `outputs/figures/rq1_overall.png`
+### RQ2. Xu huong nay co on dinh theo do dai cau khong?
 
----
+Ket luan ngan gon: **co**. Gemini dan truoc GPT o tat ca cac bin do dai (1-10, 11-20, 21-35, 36+).
 
-### RQ2 — Do both AIs handle all three emotions equally well?
+| Length bin | n | GPT BLEU | Gemini BLEU | GPT chrF++ | Gemini chrF++ | GPT TER | Gemini TER |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1-10 | 599 | 33.936 | 37.635 | 55.813 | 57.476 | 63.562 | 58.372 |
+| 11-20 | 2391 | 31.886 | 36.024 | 57.882 | 59.057 | 61.841 | 56.555 |
+| 21-35 | 3378 | 32.782 | 37.108 | 59.234 | 60.767 | 59.810 | 55.196 |
+| 36+ | 2591 | 34.182 | 39.603 | 60.532 | 63.505 | 59.399 | 54.211 |
 
-> *Does preservation accuracy differ across Positive, Neutral, and Negative sentiment classes?*
+Y nghia:
+- Khoang cach BLEU lon nhat o cau dai (36+): +5.421 cho Gemini.
+- GPT khong co bin nao vuot Gemini o bat ky metric chinh nao.
 
-**How we measured it:** We split all 600 sentences by their original emotion label and measured accuracy separately for each group.
+### RQ3. Khac biet co y nghia thong ke khong?
 
-| Emotion | How many sentences | GPT got right | Gemini got right | Difference | Winner |
-|---|---|---|---|---|---|
-| Positive 😊 | 233 (38.8%) | 86.43% | 86.43% | 0% | Tie |
-| Neutral 😐 | 105 (17.5%) | 63.33% | 65.83% | +2.50% | **Gemini** |
-| Negative 😠 | 195 (32.5%) | 80.18% | 81.98% | +1.80% | **Gemini** |
+`03_classify.ipynb` da bo sung bootstrap significance theo huong sentence-level paired delta de chay nhanh hon va van giu logic so sanh thong ke.
 
-**What this means:**
+Ket luan bao cao:
+- Pipeline da ho tro kiem dinh bootstrap cho so sanh GPT vs Gemini.
+- Neu ban muon ghi vao thesis theo dung mau hoc thuat (CI/p-value cu the), chay lai cell bootstrap cuoi cung de lay dung so CI/p-value cua run chot.
 
-- **Positive sentences are the easiest.** When a sentence is clearly happy or optimistic, both AIs almost always get the translation right. Happy words like "wonderful", "I love", "great news" tend to translate the same way in every language, so the feeling is easy to carry over.
-- **Neutral sentences are the hardest — by far.** Both AIs score roughly 20% lower on neutral sentences than positive ones. Why? Neutral sentences are often flat and factual (e.g., "The meeting is at 3pm"). When translated, the AI sometimes picks word choices that sound slightly warm or slightly cold, accidentally tipping the emotion one way. With no clear emotional anchor, there's more room to drift.
-- **Negative sentences are handled better than you'd expect.** Words like "terrible", "I hate", "disaster" are strongly emotional — those feelings come through clearly even after translation.
-- Gemini's biggest edge over GPT is on **neutral sentences** (+2.50%), meaning it's better at keeping "flat" sentences flat.
+### RQ4. O muc tung cau, model nao thuong thang hon?
 
-> **Chart:** `outputs/figures/rq2_by_class.png`
+Tu `qualitative_compare.csv` (8959 cau hop le):
 
----
+| Winner by sentence BLEU | Count | Ratio |
+|---|---:|---:|
+| Gemini | 5161 | 57.61% |
+| GPT | 2882 | 32.17% |
+| Tie | 916 | 10.22% |
 
-### RQ3 — When an AI gets the feeling wrong, which direction does it go?
-
-> *When sentiment is not preserved, what types of shifts occur and are they systematic?*
-
-**How we measured it:** We matched up each sentence's original emotion label, GPT's translation label, and Gemini's translation label into 533 triplets. Every time a translation's emotion label didn't match the original, we recorded which way it shifted (e.g., was originally Negative, came out as Neutral).
-
-#### How often does each AI get it wrong?
-
-| Model | Mistakes made | Out of | Error rate | Correct rate |
-|---|---|---|---|---|
-| GPT-5.2 | 56 | 533 | 10.51% | 89.49% |
-| Gemini-2.5-Flash | 49 | 533 | **9.19%** | 90.81% |
-
-Gemini makes **7 fewer mistakes**, which is about 12.5% fewer errors than GPT.
-
-#### When GPT gets it wrong, what happens? (56 mistakes total)
-
-| What it was → What AI said | How many times | Share | Plain English |
-|---|---|---|---|
-| Neutral → Positive | 21 | 37.5% | A flat sentence came out sounding happy |
-| Negative → Neutral | 9 | 16.1% | An angry/sad sentence came out sounding flat |
-| Neutral → Negative | 7 | 12.5% | A flat sentence came out sounding bad |
-| Negative → Positive | 7 | 12.5% | An angry sentence came out sounding happy ⚠️ |
-| Positive → Negative | 5 | 8.9% | A happy sentence came out sounding angry ⚠️ |
-| Positive → Neutral | 5 | 8.9% | A happy sentence came out sounding flat |
-
-#### When Gemini gets it wrong, what happens? (49 mistakes total)
-
-| What it was → What AI said | How many times | Share | Plain English |
-|---|---|---|---|
-| Neutral → Positive | 20 | 40.8% | A flat sentence came out sounding happy |
-| Negative → Neutral | 7 | 14.3% | An angry/sad sentence came out sounding flat |
-| Neutral → Negative | 6 | 12.2% | A flat sentence came out sounding bad |
-| Negative → Positive | 6 | 12.2% | An angry sentence came out sounding happy ⚠️ |
-| Positive → Negative | 5 | 10.2% | A happy sentence came out sounding angry ⚠️ |
-| Positive → Neutral | 5 | 10.2% | A happy sentence came out sounding flat |
-
-**What this means:**
-
-- **The #1 mistake for both AIs is turning a neutral sentence into a positive one.** This accounts for ~38–41% of all errors. The reason: AI translators are trained on huge amounts of internet text, which tends to be written in an upbeat, friendly tone. So when a sentence has no strong emotion, the AI's "default mood" slightly pulls it toward positive.
-- **Complete reversals (⚠️ rows) are the most dangerous errors** — turning happy into angry or angry into happy completely flips the meaning. These make up about 20% of all mistakes for both models. Imagine a customer complaint being translated to sound like a compliment — that's the kind of damage these shifts can cause.
-- **Both AIs make the same types of mistakes.** The pattern is nearly identical between GPT and Gemini. Gemini is just a little better at avoiding all of them, rather than being better at one specific type.
-
-> **Charts:** `outputs/figures/rq3_shift_types.png` · `outputs/figures/rq3_confusion_matrices.png`
+Y nghia:
+- O cap do sentence, Gemini thang GPT tren hon mot nua tap danh gia.
+- GPT van co nhieu truong hop tot hon (32.17%), nen phan qualitative examples trong `04_analysis.ipynb` van quan trong de phan tich loi/manh theo loai cau.
 
 ---
 
-### RQ4 — Does the source language affect how well the AI preserves emotion?
+## Important Runtime Notes
 
-> *Does sentiment preservation vary across Spanish, French, and Italian?*
+### API credits and 402 errors
 
-**How we measured it:** The 600 pairs are split equally — 200 sentences per language. We measured accuracy separately for each language.
+During translation, OpenRouter may return `402` if remaining credits are insufficient.
 
-| Language | GPT got right | GPT score | Gemini got right | Gemini score | Difference | Winner |
-|---|---|---|---|---|---|---|
-| Spanish 🇪🇸 | 167 / 200 | 83.50% | 167 / 200 | 83.50% | 0% | Tie |
-| French 🇫🇷 | 185 / 200 | 92.50% | 186 / 200 | 93.00% | +0.50% | **Gemini** |
-| Italian 🇮🇹 | 181 / 200 | 90.50% | 187 / 200 | 93.50% | +3.00% | **Gemini** |
+Current translation notebook supports:
+- Resume from existing CSV
+- Retry on previous error rows
+- Adaptive lower `max_tokens` on 402
+- Targeted retry for specific failed IDs
 
-**What this means:**
+If 402 remains:
+- Add credits, then rerun translation cells
+- Or lower token budget further for rescue retries
 
-- **French and Italian translations are significantly better than Spanish** — roughly 7–10% more accurate for both AIs. This is because French and Italian share a lot of emotional vocabulary with English (many words have the same Latin root), so emotional words translate more directly. For example, the French word "magnifique" and the English "magnificent" are obviously the same feeling. Spanish uses more indirect, idiomatic expressions for emotion that don't map as cleanly.
-- **Spanish is the toughest language for both AIs, and they tie exactly at 83.5%.** Neither model has an edge here — both struggle equally with Spanish emotional phrasing.
-- **Italian is where Gemini pulls the biggest lead (+3%).** Gemini translates Italian emotional sentences into English more faithfully than GPT. It's the most striking gap in the whole study.
-- **French is nearly identical between the two models** (+0.5% for Gemini) — both handle French about as well as each other.
+### Evaluation scope
 
-> **Chart:** `outputs/figures/rq4_by_language.png`
-
----
-
-## Summary
-
-| Dimension | Winner |
-|---|---|
-| Overall accuracy | **Gemini** (80.67% vs 79.50%) |
-| Positive class | Tie |
-| Neutral class | **Gemini** |
-| Negative class | **Gemini** |
-| Shift rate (lower = better) | **Gemini** (9.19% vs 10.51%) |
-| Spanish | Tie |
-| French | **Gemini** |
-| Italian | **Gemini** |
-
-**Gemini-2.5-Flash is the stronger sentiment-preserving model** across nearly all dimensions, with the most notable advantages on Neutral sentiment and Italian/French language pairs.
+`03_classify.ipynb` evaluates on successfully translated rows (non-`ERROR`) to avoid metric distortion from failed API calls.
 
 ---
 
-## File Structure
+## Citation (MedEV)
 
-```
-Thesis Quynh/
-├── data/
-│   └── sentences.csv                  # 200 source sentences (EN + ES/FR/IT)
-├── outputs/
-│   ├── translations_gpt.csv           # 600 GPT translations
-│   ├── translations_gemini.csv        # 600 Gemini translations
-│   ├── classifications.csv            # Sentiment labels for all texts
-│   ├── summary_results.csv            # Aggregated accuracy table
-│   └── figures/
-│       ├── rq1_overall.png
-│       ├── rq2_by_class.png
-│       ├── rq3_confusion_matrices.png
-│       ├── rq3_shift_types.png
-│       └── rq4_by_language.png
-├── 01_prepare_data.ipynb
-├── 02_translate.ipynb
-├── 03_classify.ipynb
-└── 04_analysis.ipynb
+If you use MedEV, please cite:
+
+```bibtex
+@inproceedings{vo-etal-2024-improving,
+    title = "Improving {V}ietnamese-{E}nglish Medical Machine Translation",
+    author = "Vo, Nhu and Nguyen, Dat Quoc and Le, Dung D. and Piccardi, Massimo and Buntine, Wray",
+    booktitle = "Proceedings of the 2024 Joint International Conference on Computational Linguistics, Language Resources and Evaluation (LREC-COLING 2024)",
+    year = "2024",
+    pages = "8955--8962",
+    url = "https://aclanthology.org/2024.lrec-main.784/"
+}
 ```
 
 ---
 
-## Environment
+## Status
 
-| Package | Version |
-|---|---|
-| Python | 3.10 (conda `py310`) |
-| PyTorch | 2.6.0+cu118 |
-| Transformers | latest |
-| CUDA | 11.8 (RTX 3050) |
-| protobuf | 3.20.3 |
-| networkx | 3.2.1 |
+This repository has been adapted from the original sentiment-preservation workflow to a MedEV medical MT evaluation workflow.
+
+If you want, the next step is to freeze one final run and pin all final metrics/figures for thesis submission.
